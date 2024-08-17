@@ -13,9 +13,9 @@ namespace Api.Controllers
         private readonly IProductRepository _productRepository = productRepository;
 
         [HttpGet]
-        public async Task<ActionResult<IReadOnlyList<Product>>> GetProducts()
+        public async Task<ActionResult<IReadOnlyList<Product>>> GetProducts(string? brand, string? type, string? sort)
         {
-            return Ok(await this._productRepository.GetProductsAsync());
+            return Ok(await this._productRepository.GetProductsAsync(brand, type, sort));
         }
 
         [HttpGet("{id:int}")]
@@ -69,6 +69,18 @@ namespace Api.Controllers
                 return NoContent();
             else 
                 return BadRequest("Problem deleting product");
+        }
+
+        [HttpGet("brands")]
+        public async Task<ActionResult<IReadOnlyList<string>>> GetBrands()
+        {
+            return Ok(await this._productRepository.GetBrandsAsync());
+        }
+
+        [HttpGet("types")]
+        public async Task<ActionResult<IReadOnlyList<string>>> GetTypes()
+        {
+            return Ok(await this._productRepository.GetTypesAsync());
         }
     }
 }
