@@ -8,7 +8,6 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
     const router = inject(Router);
     const snackbar = inject(SnackbarService);
 
-    
     return next(req)
         .pipe(
             catchError((err: HttpErrorResponse) => {
@@ -31,7 +30,6 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
                 }
                 if(err.status === 500) {
                     const navigationExtras: NavigationExtras = {state: {error: err.error}};
-
                     router.navigateByUrl('/server-error', navigationExtras);
                 }
                 return throwError(() => err);
