@@ -18,13 +18,7 @@ builder.Services.AddMappingClassesServices();
 builder.Services.AddCors();
 
 // Redis
-builder.Services.AddSingleton<IConnectionMultiplexer>(config => 
-{
-    var connectionString = builder.Configuration.GetConnectionString("Redis") ?? throw new Exception("Cannot get redis connection string");
-    var configuration = ConfigurationOptions.Parse(connectionString, true);
-    return ConnectionMultiplexer.Connect(configuration);
-});
-builder.Services.AddSingleton<ICartService, CartService>();
+builder.Services.AddRedisServicesExtensions(builder.Configuration);
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddSwaggerServices();
