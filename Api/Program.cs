@@ -1,5 +1,8 @@
 using Api.Controllers.Extensions;
 using Api.Middleware;
+using Core.Interfaces;
+using Infrastructure.Services;
+using StackExchange.Redis;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -13,6 +16,15 @@ builder.Services.AddDatabaseServices(builder.Configuration);
 builder.Services.AddMappingClassesServices();
 
 builder.Services.AddCors();
+
+// Redis
+builder.Services.AddSingleton<IConnectionMultiplexer>(config => 
+{
+    var connectionString = builder.Configuration.GetConnectionString("Redis") ?? throw new Exception("Cannot get redis connection string");
+    var configuration = ConfigurationOptions.Parse(connectionString, true);
+    return ConnectionMultiplexer.Connect(configuration);
+});
+builder.Services.AddSingleton<ICartService, CartService>();
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddSwaggerServices();
