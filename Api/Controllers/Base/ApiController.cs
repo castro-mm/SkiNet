@@ -5,8 +5,8 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Api.Controllers.Base;
 
-[Route("api/[controller]")]
 [ApiController]
+[Route("api/[controller]")]
 public class ApiController : ControllerBase
 {
     protected async Task<ActionResult> CreatePagedResult<T>(IGenericRepository<T> repository, ISpecification<T> spec, int pageIndex, int pageSize) where T : Entity
