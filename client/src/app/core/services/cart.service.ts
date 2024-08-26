@@ -73,7 +73,7 @@ export class CartService {
         }
     }
     private deleteCart() {
-        this.http.delete(`${this.baseApiUrl}cart:id=${this.cart()?.id}`).subscribe({
+        this.http.delete(`${this.baseApiUrl}cart?id=${this.cart()?.id}`).subscribe({
             next: () => {
                 localStorage.removeItem('cart_id');
                 this.cart.set(null);

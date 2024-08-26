@@ -2,6 +2,7 @@ using Api.Controllers.Extensions;
 using Api.Middleware;
 using Core.Entities.Identity;
 using Infrastructure.Data;
+using Microsoft.AspNetCore.Authentication.Cookies;
 
 var builder = WebApplication.CreateBuilder(args);
 

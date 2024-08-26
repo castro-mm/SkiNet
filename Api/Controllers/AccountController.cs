@@ -7,7 +7,6 @@ using Core.Entities.Identity;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 namespace Api.Controllers;
 
@@ -57,7 +56,7 @@ public class AccountController(SignInManager<AppUser> signInManager) : ApiContro
         return Ok(new { user.FirstName, user.LastName, user.Email, Address = user.Address?.ToDto() });
     }
 
-    [HttpGet]
+    [HttpGet("auth-status")]
     public ActionResult GetAuthState()
     {
         return Ok(new { IsAuthenticated = User.Identity?.IsAuthenticated ?? false });
