@@ -13,21 +13,26 @@ export class CartService {
     baseApiUrl: string = environment.apiUrl;
     cart = signal<Cart|null>(null);
 
-    itemsCount = computed(() => {
-        return this.cart()?.items.reduce((sum, item) => sum + item.quantity, 0);
-    });
-    totals = computed(() => {
-        const cart = this.cart();
-        if (!cart) return;
-
-        const subtotal: number = cart.items.reduce((sum, item) => (sum + item.price) * item.quantity, 0);
-        const shipping: number = subtotal * 0.065; //6.5% // create a repository to set the fee, with a historic by period.
-        const discount: number = 0;
-
-        return { subtotal, shipping, discount, total: subtotal + shipping - discount }
-    });
-
     constructor(private http: HttpClient) { }
+
+    get itemsCount() {
+        return computed(() => {
+            return this.cart()?.items.reduce((sum, item) => sum + item.quantity, 0);
+        })
+    }
+
+    get totals() {
+        return computed(() => {
+            const cart = this.cart();
+            if (!cart) return;
+    
+            const subtotal: number = cart.items.reduce((sum, item) => (sum + item.price) * item.quantity, 0);
+            const shipping: number = subtotal * 0.065; //6.5% // create a repository to set the fee, with a historic by period.
+            const discount: number = 0;
+    
+            return { subtotal, shipping, discount, total: subtotal + shipping - discount }
+        });
+    }
 
     getCart(id: string) {
         return this.http.get<Cart>(`${this.baseApiUrl}cart?id=${id}`).pipe(
