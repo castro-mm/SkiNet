@@ -1,7 +1,9 @@
 using Api.Controllers.Extensions;
 using Api.Middleware;
 using Core.Entities.Identity;
+using Core.Interfaces;
 using Infrastructure.Data;
+using Infrastructure.Services;
 using Microsoft.AspNetCore.Authentication.Cookies;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -28,6 +30,8 @@ builder.Services
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddSwaggerServices();
+
+builder.Services.AddScoped<IPaymentService, PaymentService>();
 
 var app = builder.Build();
 

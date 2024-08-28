@@ -5,6 +5,7 @@ import { Cart } from '../../shared/models/cart';
 import { CartItem } from '../../shared/models/cart-item';
 import { Product } from '../../shared/models/product';
 import { map } from 'rxjs';
+import { DeliveryMethod } from '../../shared/models/delivery-method';
 
 @Injectable({
     providedIn: 'root'
@@ -12,6 +13,7 @@ import { map } from 'rxjs';
 export class CartService {
     baseApiUrl: string = environment.apiUrl;
     cart = signal<Cart|null>(null);
+    selectedDelivery = signal<DeliveryMethod | null>(null);
 
     constructor(private http: HttpClient) { }
 
@@ -24,10 +26,11 @@ export class CartService {
     get totals() {
         return computed(() => {
             const cart = this.cart();
+            const delivery = this.selectedDelivery();
             if (!cart) return;
     
             const subtotal: number = cart.items.reduce((sum, item) => (sum + item.price) * item.quantity, 0);
-            const shipping: number = subtotal * 0.065; //6.5% // create a repository to set the fee, with a historic by period.
+            const shipping: number = delivery ? delivery.price : 0;
             const discount: number = 0;
     
             return { subtotal, shipping, discount, total: subtotal + shipping - discount }
@@ -47,6 +50,15 @@ export class CartService {
         return this.http.post<Cart>(`${this.baseApiUrl}cart`, cart).subscribe({
             next: (cart: Cart) => this.cart.set(cart)
         });
+    }
+
+    deleteCart() {
+        this.http.delete(`${this.baseApiUrl}cart?id=${this.cart()?.id}`).subscribe({
+            next: () => {
+                localStorage.removeItem('cart_id');
+                this.cart.set(null);
+            }
+        })
     }
 
     addItemToCart(item: CartItem|Product, quantity: number = 1) {
@@ -76,14 +88,6 @@ export class CartService {
                 this.setCart(cart);
             }
         }
-    }
-    private deleteCart() {
-        this.http.delete(`${this.baseApiUrl}cart?id=${this.cart()?.id}`).subscribe({
-            next: () => {
-                localStorage.removeItem('cart_id');
-                this.cart.set(null);
-            }
-        })
     }
     
     private addOrUpdateItem(items: CartItem[], item: CartItem, quantity: number): CartItem[] {
