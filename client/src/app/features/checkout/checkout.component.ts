@@ -16,6 +16,8 @@ import { CheckoutReviewComponent } from './checkout-review/checkout-review.compo
 import { CartService } from '../../core/services/cart.service';
 import { CurrencyPipe } from '@angular/common';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { OrderToCreate, ShippingAddress } from '../../shared/models/order';
+import { OrderService } from '../../core/services/order.service';
 
 @Component({
     selector: 'app-checkout',
@@ -33,7 +35,13 @@ export class CheckoutComponent implements OnInit, OnDestroy {
 
     completionStatus = signal<{address: boolean, payment: boolean, delivery: boolean}>({address: false, payment: false, delivery: false});
 
-    constructor(private stripeService: StripeService, private snackbar: SnackbarService, private accountService: AccountService, public cartService: CartService, private router: Router) { }
+    constructor(
+        private stripeService: StripeService, 
+        private snackbar: SnackbarService, 
+        private accountService: AccountService, 
+        public cartService: CartService, 
+        private orderService: OrderService,
+        private router: Router) { }
 
     async ngOnInit() {
         try {
@@ -89,7 +97,7 @@ export class CheckoutComponent implements OnInit, OnDestroy {
     async onStepChange(event: StepperSelectionEvent) {
         if (event.selectedIndex === 1) { // Address > Shipping
             if (this.saveAddress) {
-                const address = await this.getAddressFromStripeAddress();
+                const address = await this.getAddressFromStripeAddress() as Address;
                 address && firstValueFrom(this.accountService.updateAddress(address)); // address && = if (address === null)... else...
             }
         }
@@ -101,7 +109,6 @@ export class CheckoutComponent implements OnInit, OnDestroy {
         if (event.selectedIndex === 3) { // Payment > Confirmation
             await this.getConfirmationToken();
         }
-
     }
 
     async confirmPayment(stepper: MatStepper) {
@@ -109,12 +116,22 @@ export class CheckoutComponent implements OnInit, OnDestroy {
         try {
             if(this.confirmationToken) {
                 const result = await this.stripeService.confirmPayment(this.confirmationToken);
-                if (result.error) {
+                if (result.paymentIntent?.status === 'succeeded') {
+                    const order = await this.createOrderModel();
+                    const orderResult = await firstValueFrom(this.orderService.createOrder(order));
+
+                    if (orderResult) {
+                        this.cartService.deleteCart();
+                        this.cartService.selectedDelivery.set(null);
+                        this.orderService.orderCompleted = true;
+                        this.router.navigateByUrl('/checkout/success');
+                    } else {
+                        throw new Error('Order creation failed');
+                    }
+                } else if (result.error) {
                     throw new Error(result.error.message);
                 } else {
-                    this.cartService.deleteCart();
-                    this.cartService.selectedDelivery.set(null);
-                    this.router.navigateByUrl('/checkout/success');
+                    throw new Error();
                 }
             }
         } catch (error: any) {
@@ -124,12 +141,35 @@ export class CheckoutComponent implements OnInit, OnDestroy {
             this.loading = false;
         }
     }
+    
+    private async createOrderModel() : Promise<OrderToCreate> {
+        const cart = this.cartService.cart();
+        const shippingAddress = await this.getAddressFromStripeAddress() as ShippingAddress;
+        const card = this.confirmationToken?.payment_method_preview.card;
 
-    private async getAddressFromStripeAddress(): Promise<Address | null> {
+        if (!cart?.id || !cart.deliveryMethodId || !card || !shippingAddress) 
+            throw new Error('Problem creating order');
+
+        return {
+            cartId: cart.id,
+            paymentSummary: {
+                last4: +card.last4,
+                brand: card.brand,
+                expMonth: card.exp_month,
+                expYear: card.exp_year
+            },            
+            deliveryMethodId: cart.deliveryMethodId,
+            shippingAddress: shippingAddress            
+        };
+
+    }
+
+    private async getAddressFromStripeAddress(): Promise<Address | ShippingAddress | null> {
         const result = await this.addressElement?.getValue();
         const address = result?.value.address;
         if (address) {
             return {
+                name: result.value.name,
                 line1: address.line1,                
                 line2: address.line2 || undefined,
                 city: address.city,

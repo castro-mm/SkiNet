@@ -59,9 +59,8 @@ public class OrdersController(ICartService cartService, IUnitOfWork unitOfWork) 
             BuyerEmail = email
         };
 
-        unitOfWork.Repository<Order>().Add(order);
-
-        if (!await unitOfWork.Complete()) return BadRequest("Problem creating order");
+        if (!await unitOfWork.Repository<Order>().AddAndSaveChangesAsync(order)) 
+            return BadRequest("Problem creating order");
 
         return Ok(order.ToDto());
     }
