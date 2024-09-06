@@ -3,14 +3,14 @@
         <div class="flex w-full items-start gap-6 mt-32">
             <div class="w-full">
                 @for (item of cartService.cart()?.items; track item.productId) {
-                    <app-cart-item [item]="item"></app-cart-item>
+                    <app-cart-item [item]="item"/>
                 }
             </div>
             <div class="w-1/4">
-                <app-order-summary></app-order-summary>
+                <app-order-summary/>
             </div>
         </div>
     } @else {
-        <app-empty-state></app-empty-state>
+        <app-empty-state message="Your shop cart is empty" icon="filter_shopping_cart" actionText="Go To Shop" (action)="onAction()" />
     }
 </section>
