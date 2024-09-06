@@ -44,8 +44,12 @@ if (app.Environment.IsDevelopment())
 
 app.UseMiddleware<ExceptionMiddleware>();
 app.UseCors(x => x.AllowAnyHeader().AllowAnyMethod().AllowCredentials().WithOrigins("http://localhost:4200", "https://localhost:4200"));
+
 app.UseAuthentication();
 app.UseAuthorization();
+
+app.UseDefaultFiles();
+app.UseStaticFiles();
 
 app.MapControllers();
 
@@ -55,7 +59,7 @@ app.MapGroup("api").MapIdentityApi<AppUser>(); //api/login
 
 // SignalR Hub Map
 app.MapHub<NotificationHub>("hub/notifications");
-
+app.MapFallbackToController("Index", "Fallback");
 // Seed data
 await app.SeedData();
 
