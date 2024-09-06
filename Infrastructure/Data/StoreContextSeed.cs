@@ -1,3 +1,4 @@
+using System.Reflection;
 using System.Text.Json;
 using Core.Base;
 using Core.Entities;
@@ -8,8 +9,10 @@ public class StoreContextSeed
 {
     public static async Task SeedAsync(StoreContext context)
     {
-        await Seed<Product>(context, "../Infrastructure/Data/SeedData/products.json");
-        await Seed<DeliveryMethod>(context, "../Infrastructure/Data/SeedData/delivery.json");
+        var path = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+
+        await Seed<Product>(context, path + @"/Data/SeedData/products.json");
+        await Seed<DeliveryMethod>(context, path + @"/Data/SeedData/delivery.json");
     }
 
     private static async Task Seed<T>(StoreContext context, string filePath) where T : Entity 
