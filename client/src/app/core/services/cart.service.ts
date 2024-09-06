@@ -1,5 +1,5 @@
 import { computed, Injectable, signal } from '@angular/core';
-import { environment } from '../../../environments/environment.development';
+import { environment } from '../../../environments/environment';
 import { HttpClient } from '@angular/common/http';
 import { Cart } from '../../shared/models/cart';
 import { CartItem } from '../../shared/models/cart-item';

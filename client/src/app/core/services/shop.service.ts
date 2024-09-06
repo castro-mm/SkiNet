@@ -3,12 +3,13 @@ import { Injectable } from '@angular/core';
 import { Pagination } from '../../shared/models/pagination';
 import { Product } from '../../shared/models/product';
 import { ShopParams } from '../../shared/models/shopParams';
+import { environment } from '../../../environments/environment';
 
 @Injectable({
     providedIn: 'root' // root means that the service is provided to the entire application.
 })
 export class ShopService {
-    baseUrl: string = 'https://localhost:5010/api/';
+    baseApiUrl: string = environment.apiUrl;
     types: string[] = [];
     brands: string[] = [];
 
@@ -25,17 +26,17 @@ export class ShopService {
         params = params.append('pageSize', shopParams.pageSize);
         params = params.append('pageIndex', shopParams.pageIndex);
 
-        return this.http.get<Pagination<Product>>(this.baseUrl + 'products', { params });
+        return this.http.get<Pagination<Product>>(`${this.baseApiUrl}products`, { params });
     }
 
     getProduct(id: number) {
-        return this.http.get<Product>(`${this.baseUrl}products/${id}`);
+        return this.http.get<Product>(`${this.baseApiUrl}products/${id}`);
     }
 
     getBrands() {
         if (this.brands.length > 0) return;
 
-        this.http.get<string[]>(`${this.baseUrl}products/brands`).subscribe({
+        this.http.get<string[]>(`${this.baseApiUrl}products/brands`).subscribe({
             next: (response) => this.brands = response
         })
     }
@@ -43,7 +44,7 @@ export class ShopService {
     getTypes() {
         if (this.types.length > 0) return;
 
-        this.http.get<string[]>(this.baseUrl + 'products/types').subscribe({
+        this.http.get<string[]>(`${this.baseApiUrl}products/types`).subscribe({
             next: (response) => this.types = response
         })
     }
