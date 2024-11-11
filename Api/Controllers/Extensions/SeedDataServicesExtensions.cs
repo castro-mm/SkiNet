@@ -1,4 +1,6 @@
+using Core.Entities.Identity;
 using Infrastructure.Data;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
 namespace Api.Controllers.Extensions;
@@ -14,8 +16,9 @@ public static class SeedDataExtensions
             var context = services.GetRequiredService<StoreContext>();
             await context.Database.MigrateAsync();
 
-            await StoreContextSeed.SeedAsync(context);
-            
+            var userManager = services.GetRequiredService<UserManager<AppUser>>();
+
+            await StoreContextSeed.SeedAsync(context, userManager);            
         }
         catch (Exception ex)
         {            

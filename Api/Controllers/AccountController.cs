@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using Api.Controllers.Base;
 using Api.Controllers.Extensions;
 using Api.DTOs;
@@ -53,7 +54,7 @@ public class AccountController(SignInManager<AppUser> signInManager) : ApiContro
 
         var user = await signInManager.UserManager.GetUserByEmailWithAddress(User);
 
-        return Ok(new { user.FirstName, user.LastName, user.Email, Address = user.Address?.ToDto() });
+        return Ok(new { user.FirstName, user.LastName, user.Email, Address = user.Address?.ToDto(), Roles = User.FindFirstValue(ClaimTypes.Role) });
     }
 
     [HttpGet("auth-status")]

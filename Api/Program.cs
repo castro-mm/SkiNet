@@ -2,9 +2,8 @@ using Api.Controllers.Extensions;
 using Api.Middleware;
 using Api.SignalR;
 using Core.Entities.Identity;
-using Core.Interfaces;
 using Infrastructure.Data;
-using Infrastructure.Services;
+using Microsoft.AspNetCore.Identity;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -26,6 +25,7 @@ builder.Services.AddRedisServicesExtensions(builder.Configuration);
 builder.Services.AddAuthorization();
 builder.Services
     .AddIdentityApiEndpoints<AppUser>()
+    .AddRoles<IdentityRole>()
     .AddEntityFrameworkStores<StoreContext>();
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle

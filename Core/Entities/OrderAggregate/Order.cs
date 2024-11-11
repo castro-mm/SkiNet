@@ -1,8 +1,9 @@
 using Core.Base;
+using Core.Interfaces;
 
 namespace Core.Entities.OrderAggregate;
 
-public class Order : Entity
+public class Order : Entity, IDtoConvertible
 {
     public DateTime OrderDate { get; set; } = DateTime.UtcNow;
     public required string BuyerEmail { get; set; }
