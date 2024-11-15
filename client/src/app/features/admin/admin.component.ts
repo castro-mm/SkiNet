@@ -56,7 +56,7 @@ export class AdminComponent implements OnInit {
     }
 
     async openConfirmDialog(id: number) {
-        const confirmed = await this.dialogService.confirm('Confirm refund', 'Are you sure you watn to issue this refund? (THIS CANNOT BE UNDONE!)');
+        const confirmed = await this.dialogService.confirm('Confirm refund', 'Are you sure you watn to issue this refund?(THIS CANNOT BE UNDONE!)');
         if(confirmed) {
             this.refundOrder(id);
         }

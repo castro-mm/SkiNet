@@ -1,4 +1,5 @@
 using Api.Controllers.Base;
+using Api.RequestHelpers;
 using Core.Entities;
 using Core.Interfaces;
 using Core.Specifications;
@@ -9,6 +10,7 @@ namespace Api.Controllers
 {
     public class ProductsController(IUnitOfWork unitOfWork) : ApiController
     {
+        [Cache(600)]
         [HttpGet]
         public async Task<ActionResult<IReadOnlyList<Product>>> GetProducts([FromQuery] ProductSpecParams specParams)
         {
@@ -17,6 +19,7 @@ namespace Api.Controllers
             return await base.CreatePagedResult(unitOfWork.Repository<Product>(), spec, specParams.PageIndex, specParams.PageSize);
         }
 
+        [Cache(600)]
         [HttpGet("{id:int}")]
         public async Task<ActionResult<Product>> GetProduct(int id) 
         {
@@ -28,6 +31,7 @@ namespace Api.Controllers
             return Ok(product);
         }
 
+        [InvalidateCache("api/products|")]
         [Authorize(Roles = "Admin")]
         [HttpPost]
         public async Task<ActionResult<Product>> CreateProduct([FromBody] Product product)
@@ -40,6 +44,7 @@ namespace Api.Controllers
                 return BadRequest("Problem creating product");
         }
 
+        [InvalidateCache("api/products|")]
         [Authorize(Roles = "Admin")]
         [HttpPut("{id:int}")]
         public async Task<ActionResult> UpdateProduct(int id, [FromBody] Product product)
@@ -56,6 +61,7 @@ namespace Api.Controllers
 
         }
 
+        [InvalidateCache("api/products|")]
         [Authorize(Roles = "Admin")]
         [HttpDelete("{id:int}")]
         public async Task<ActionResult> DeleteProduct(int id)
@@ -73,6 +79,7 @@ namespace Api.Controllers
                 return BadRequest("Problem deleting product");
         }
 
+        [Cache(10000)]
         [HttpGet("brands")]
         public async Task<ActionResult<IReadOnlyList<string>>> GetBrands()
         {
@@ -81,6 +88,7 @@ namespace Api.Controllers
             return Ok(await unitOfWork.Repository<Product>().ListAsync(spec));
         }
 
+        [Cache(10000)]
         [HttpGet("types")]
         public async Task<ActionResult<IReadOnlyList<string>>> GetTypes()
         {

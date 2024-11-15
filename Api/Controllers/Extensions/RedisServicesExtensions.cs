@@ -17,6 +17,6 @@ public static class RedisServicesExtensions
             return ConnectionMultiplexer.Connect(configurationOptions);
         });
         services.AddSingleton<ICartService, CartService>();
-
+        services.AddSingleton<IResponseCacheService, ResponseCacheService>();
     }
 }

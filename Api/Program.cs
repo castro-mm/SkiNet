@@ -32,8 +32,6 @@ builder.Services
 builder.Services.AddSwaggerServices();
 builder.Services.AddSignalR();
 
-//builder.Services.AddScoped<IPaymentService, PaymentService>();
-
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
